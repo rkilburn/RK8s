@@ -1,0 +1,15 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cluster-resources
+rules:
+- apiGroups: ["policy", "rbac.authorization.k8s.io", "storage.k8s.io", "scheduling.k8s.io"]
+  resources: ["*", "nodes"]
+  verbs: ["list", "get"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["list", "get"]
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list", "get"]

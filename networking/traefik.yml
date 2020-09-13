@@ -1,0 +1,232 @@
+---
+# Source: traefik/templates/rbac/serviceaccount.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: traefik
+  namespace: kube-system
+---
+# Source: traefik/templates/rbac/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: traefik
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - ingressroutes
+      - ingressroutetcps
+      - ingressrouteudps
+      - middlewares
+      - tlsoptions
+      - tlsstores
+      - traefikservices
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: traefik/templates/rbac/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: traefik
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik
+subjects:
+  - kind: ServiceAccount
+    name: traefik
+    namespace: kube-system
+---
+# Source: traefik/templates/deployment.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: traefik
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+  annotations:
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+      app.kubernetes.io/instance: traefik
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: traefik
+        app.kubernetes.io/instance: traefik
+    spec:
+      serviceAccountName: traefik
+      terminationGracePeriodSeconds: 60
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      containers:
+      - image: traefik:2.2.8
+        imagePullPolicy: IfNotPresent
+        name: traefik
+        resources:
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 9000
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 9000
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        ports:
+        - name: "traefik"
+          containerPort: 9000
+          protocol: "TCP"
+        - name: "web"
+          containerPort: 8000
+          protocol: "TCP"
+        - name: "websecure"
+          containerPort: 8443
+          protocol: "TCP"
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsGroup: 65532
+          runAsNonRoot: true
+          runAsUser: 65532
+        volumeMounts:
+          - name: data
+            mountPath: /data
+          - name: tmp
+            mountPath: /tmp
+        args:
+          # - "--global.checknewversion"
+          # - "--global.sendanonymoususage"
+          - "--entryPoints.traefik.address=:9000/tcp"
+          - "--entryPoints.web.address=:8000/tcp"
+          - "--entryPoints.websecure.address=:8443/tcp"
+          - "--api.dashboard=true"
+          - "--ping=true"
+          - "--providers.kubernetescrd"
+          - "--providers.kubernetesingress"
+          - "--tracing.elastic=true"
+          # - "--tracing.elastic.serverurl=http://apm-server.default.svc.cluster.local:8200"
+          - "--tracing.elastic.serverurl=http://10.100.228.219:8200"
+          - "--accesslog=true"
+          - "--log.level=DEBUG"
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+      securityContext:
+        fsGroup: 65532
+      priorityClassName: "core-cluster-networking"
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+---
+# Source: traefik/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+  annotations:
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+  ports:
+  - port: 80
+    nodePort: 32080
+    name: web
+    targetPort: "web"
+    protocol: "TCP"
+  - port: 443
+    nodePort: 32443
+    name: websecure
+    targetPort: "websecure"
+    protocol: "TCP"
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
+---
+
+# Source: traefik/templates/dashboard-hook-ingressroute.yaml
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-original
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
+spec:
+  # entryPoints:
+  #   - websecure
+  tls: {}
+  routes:
+  - match: (PathPrefix(`/dashboard`) || PathPrefix(`/api`)) && Host(`traefik.rkilburn.com`)
+    kind: Rule
+    services:
+    - name: api@internal
+      kind: TraefikService

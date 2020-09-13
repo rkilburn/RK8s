@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ryan
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: storage
+  namespace: ryan
+spec:
+  hard:
+    ceph-block-ssd.storageclass.storage.k8s.io/requests.storage: 200Gi
+    ceph-block-hdd.storageclass.storage.k8s.io/requests.storage: 1Ti
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: network
+  namespace: ryan
+spec:
+  hard:
+    services.nodeports: 0
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: priority-class
+  namespace: ryan
+spec:
+  hard:
+    pods: "0"
+  scopeSelector:
+    matchExpressions:
+    - operator : In
+      scopeName: PriorityClass
+      values: 
+        - system-node-critical
+        - system-cluster-critical
+        - core-cluster-networking
+        - core-cluster-storage
+        - core-cluster-operators
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: limits
+  namespace: ryan
+spec:
+  limits:
+  - default:
+      memory: 512Mi
+      cpu: "1"
+      nvidia.com/gpu: 0
+    defaultRequest:
+      memory: 256Mi
+      cpu: "0.5"
+      nvidia.com/gpu: 0
+    type: Container
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: ryan
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: namespace-resources-ryan
+  namespace: ryan
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: ryan

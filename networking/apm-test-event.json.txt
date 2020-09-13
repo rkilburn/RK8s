@@ -1,0 +1,117 @@
+{
+  "@timestamp": "2020-09-02T15:16:30.668Z",
+  "@metadata": {
+    "beat": "apm-server",
+    "type": "_doc",
+    "version": "7.9.0",
+    "pipeline": "apm"
+  },
+  "trace": {
+    "id": "aa5dd79a6b39908e2e0dc3bdb7d262bd"
+  },
+  "labels": {
+    "http_host": "traefik.rkilburn.com:32443",
+    "span_kind": "server"
+  },
+  "ecs": {
+    "version": "1.5.0"
+  },
+  "processor": {
+    "name": "transaction",
+    "event": "transaction"
+  },
+  "host": {
+    "architecture": "amd64",
+    "os": {
+      "platform": "linux"
+    },
+    "ip": "192.168.164.191"
+  },
+  "kubernetes": {
+    "pod": {
+      "name": "traefik-z94zn",
+      "uid": "df506955-be9f-4658-8cf6-0ebdfbbace6d"
+    }
+  },
+  "timestamp": {
+    "us": 1599059790668572
+  },
+  "process": {
+    "args": [
+      "traefik",
+      "traefik",
+      "--entryPoints.traefik.address=:9000/tcp",
+      "--entryPoints.web.address=:8000/tcp",
+      "--entryPoints.websecure.address=:8443/tcp",
+      "--api.dashboard=true",
+      "--ping=true",
+      "--providers.kubernetescrd",
+      "--providers.kubernetesingress",
+      "--tracing.elastic=true",
+      "--tracing.elastic.serverurl=http://10.100.228.219:8200",
+      "--accesslog=true",
+      "--log.level=DEBUG"
+    ],
+    "title": "traefik",
+    "pid": 1,
+    "ppid": 0
+  },
+  "url": {
+    "scheme": "http",
+    "query": "search=&status=&per_page=10&page=1",
+    "path": "/api/http/routers"
+  },
+  "observer": {
+    "ephemeral_id": "a0950e4a-92a3-4339-a0b2-96feb4cca0d9",
+    "type": "apm-server",
+    "hostname": "apm-server-7ff5f9dd6f-8cdrb",
+    "version": "7.9.0",
+    "version_major": 7,
+    "id": "dba70852-758c-4030-89b4-31b81d16ddcb"
+  },
+  "transaction": {
+    "type": "request",
+    "duration": {
+      "us": 89
+    },
+    "name": "EntryPoint websecure traefik.rkilburn.com:32443",
+    "result": "HTTP 2xx",
+    "span_count": {
+      "dropped": 0,
+      "started": 1
+    },
+    "sampled": true,
+    "id": "aa5dd79a6b39908e"
+  },
+  "agent": {
+    "name": "go",
+    "version": "1.7.0"
+  },
+  "http": {
+    "request": {
+      "method": "get"
+    },
+    "response": {
+      "status_code": 200
+    },
+    "version": "1.1"
+  },
+  "service": {
+    "runtime": {
+      "name": "gc",
+      "version": "go1.14.6"
+    },
+    "name": "traefik",
+    "version": "2.2.8",
+    "node": {
+      "name": "429a6982d3b0d5e521e3f548a8dad928da7eec04484d780f1b1aa43c64e1d49c"
+    },
+    "language": {
+      "name": "go",
+      "version": "go1.14.6"
+    }
+  },
+  "container": {
+    "id": "429a6982d3b0d5e521e3f548a8dad928da7eec04484d780f1b1aa43c64e1d49c"
+  }
+}
