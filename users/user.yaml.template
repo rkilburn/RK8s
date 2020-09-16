@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster-resources-alice
+  name: cluster-resources-USER_NAME
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -10,14 +10,14 @@ roleRef:
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
-  name: alice
+  name: USER_NAME
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: namespace-resources-alice
-  namespace: alice
+  name: namespace-resources-USER_NAME
+  namespace: USER_NAME
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -25,4 +25,4 @@ roleRef:
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: User
-  name: alice
+  name: USER_NAME
