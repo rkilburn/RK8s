@@ -12,7 +12,7 @@ metadata:
   namespace: alice
 spec:
   hard:
-    ceph-block-ssd.storageclass.storage.k8s.io/requests.storage: 100Gi
+    ceph-block-ssd.storageclass.storage.k8s.io/requests.storage: 200Gi
     ceph-block-hdd.storageclass.storage.k8s.io/requests.storage: 1Ti
 
 ---

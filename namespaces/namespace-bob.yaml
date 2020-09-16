@@ -12,7 +12,7 @@ metadata:
   namespace: bob
 spec:
   hard:
-    ceph-block-ssd.storageclass.storage.k8s.io/requests.storage: 100Gi
+    ceph-block-ssd.storageclass.storage.k8s.io/requests.storage: 200Gi
     ceph-block-hdd.storageclass.storage.k8s.io/requests.storage: 1Ti
 
 ---
@@ -44,6 +44,7 @@ spec:
         - core-cluster-networking
         - core-cluster-storage
         - core-cluster-operators
+
 ---
 apiVersion: v1
 kind: LimitRange
