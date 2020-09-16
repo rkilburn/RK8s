@@ -16,8 +16,13 @@ A template for a secure, multitenant Kubernetes Cluster
 - CEPH (Storage Provider)
 - NVidia GPU Support (Accelerator)
 
-## Future 
+### Future 
 - Traefik Foward Auth
 - Application of PSPs
 - Metrics & APM Monitoring of Traefik
-- Initial Cluster Setup Guide 
+
+
+## User and Namespace Generation
+1. Add additional users or namespaces to the txt files in the respective directories
+2. Run `scripts/generate-users.sh` or `scripts/generate-namespaces.sh` from the root of this git repo
+3. Commit the changes and let Flux roll them out
