@@ -13,14 +13,14 @@ Now that we've proven our cluster is working, it's time to start thinking about 
 
 So, we want to be pretty open in how much CPU and Memory our users can use, but we need to prioritise certain Pods other other to prevent core cluster service Pods from being killed (or Evicted as a Pod status). 
 
-In Kubernetes, we can achieve this with PriorityClasses. We assign each Pod a PriortyClass and the Scheduler will prioritise Pods with a PriortyClass with a higher value. If Pods are requested but there is not enough capacity, the lowest PriorityClass Pods will be Evicted from the cluster.
+In Kubernetes, we can achieve this with PriorityClasses. We assign each Pod a PriorityClass and the Scheduler will prioritise Pods with a PriorityClass with a higher value. If Pods are requested but there is not enough capacity, the lowest PriorityClass Pods will be Evicted from the cluster.
 
 If you do not have your web-server deployment from the previous guide, recreate it with the following command:
 ```
 kubectl apply -f web-server.yml
 ```
 
-## 1. See current PriortyClasses
+## 1. See current PriorityClasses
 Let's see what classes we already have:
 ```
 kubectl get priorityclass
@@ -78,7 +78,7 @@ Once you have filled your cluster with low priority Pods, lets create the high p
 kubectl get pods --watch
 ```
 
-Lets create the high priorty Deployment
+Lets create the high Priority Deployment
 ```
 kubectl apply -f ./web-server-high-priority.yml 
 ```
