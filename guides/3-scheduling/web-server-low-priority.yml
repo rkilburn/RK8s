@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server-low-priority
+  namespace: web-server
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      name: web-server-low-priority
+  template:
+    metadata:
+      labels:
+        name: web-server-low-priority
+    spec:
+      priorityClassName: legacy-applications
+      containers:
+      - name: nginx
+        image: nginx:1.19.2
+        resources:
+          requests:
+            cpu: "0.2"
+            memory: 256Mi
+          limits:
+            cpu: "0.2"
+            memory: 256Mi
+        

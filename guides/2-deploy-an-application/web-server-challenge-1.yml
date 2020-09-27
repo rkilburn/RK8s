@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server-challenge-1
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web-server-challenge-1
+  template:
+    metadata:
+      labels:
+        name: web-server-challenge-1
+    spec:
+      containers:
+      - name: nginx
+        image: ngimx:1.19.2
+        
