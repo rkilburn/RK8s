@@ -93,13 +93,13 @@ kubectl scale -f ./web-server-low-priority.yml --replicas 25
 kubectl get pods -n web-server
 ```
 
-Once you have filled your cluster with low priority Pods, lets create the high priority deployment and see what happens. To watch what happens live, open a second terminal and run the following. 
+Once you have filled your cluster with low priority Pods, lets create the high priority deployment and see what happens. To watch what happens live, open a second terminal and run the following:
 
 ```
 kubectl get pods --watch
 ```
 
-Lets create the high Priority Deployment
+Lets create the high Priority Deployment:
 ```
 kubectl apply -f ./web-server-high-priority.yml 
 ```
@@ -116,7 +116,7 @@ If you now delete the High Priority Deployment, you will see the X Low Priority 
 kubectl delete -f ./web-server-high-priority.yml
 ```
 
-In a later guide, we will see how we restrict which PriorityClasses can be scheduled in a Namespace
+In a later guide, we will see how we restrict which PriorityClasses can be scheduled in a Namespace.
 
 ## 4. Challenge 1
 The following YAML creates a deployment called `scheduling-challenge-1`. What PriorityClass does it have, any why? How and why is this different to the PriorityClass our web-server had at the start of this guide (see the example output above)?
