@@ -119,7 +119,7 @@ kubectl delete -f ./web-server-high-priority.yml
 In a later guide, we will see how we restrict which PriorityClasses can be scheduled in a Namespace
 
 ## 4. Challenge 1
-The following YAML creates a deployment called `scheduling-challenge-1`. What PriorityClass does it have, any why? How and why is this different to the PriorityClass our web-server had at the start of this guide?
+The following YAML creates a deployment called `scheduling-challenge-1`. What PriorityClass does it have, any why? How and why is this different to the PriorityClass our web-server had at the start of this guide (see the example output above)?
 
 ```
 kubectl apply -f ./scheduling-challenge-1.yml
