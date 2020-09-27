@@ -16,13 +16,13 @@ So, we want to be pretty open in how much CPU and Memory our users can use, but 
 In Kubernetes, we can achieve this with PriorityClasses. We assign each Pod a PriorityClass and the Scheduler will prioritise Pods with a PriorityClass with a higher value. If Pods are requested but there is not enough capacity, the lowest PriorityClass Pods will be Evicted from the cluster.
 
 If you do not have your web-server deployment from the previous guide, recreate it with the following command:
-```
+```bash
 kubectl apply -f ./web-server.yml
 ```
 
 ## 1. See current PriorityClasses
 Let's see what classes we already have:
-```
+```bash
 kubectl get priorityclass
 # NAME                      VALUE        GLOBAL-DEFAULT   AGE
 # system-cluster-critical   2000000000   false            80m
@@ -31,7 +31,7 @@ kubectl get priorityclass
 
 As shown in the previous output, Kubernetes has two PriorityClasses by default. Lets see how they are being used:
 
-```
+```bash
 kubectl get pods --all-namespaces -o custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,PRIORITY:.spec.priorityClassName
 
 # NAME                                      NAMESPACE     PRIORITY
@@ -73,7 +73,7 @@ Last up, we have our web-server pods that do not have a priority class.
 
 ## 2. Create PriorityClasses
 Apply the resource file with our desired PriorityClasses and check their values:
-```
+```bash
 kubectl apply -f scheduling
 kubectl get priorityclass
 ```
@@ -82,25 +82,25 @@ kubectl get priorityclass
 In this example, we are going to fill our cluster with low priority Pods, and then begin scheduling higher priority Pods and watch the scheduler do its magic.
 
 Apply the low priority web server resource file:
-```
+```bash
 kubectl apply -f ./web-server-low-priority.yml
 ```
 
 Scale up the pods to fill up your cluster. Each Pod is requesting 0.2 CPU Cores and 256Mi - nginx will not use all of this so it will kill your cluster - even if it did, the resource limits and scheduler would prevent this. Keeping scaling the deployment so that you have no Pending Pods. 
 
-```
+```bash
 kubectl scale -f ./web-server-low-priority.yml --replicas 25
 kubectl get pods -n web-server
 ```
 
 Once you have filled your cluster with low priority Pods, lets create the high priority deployment and see what happens. To watch what happens live, open a second terminal and run the following:
 
-```
+```bash
 kubectl get pods --watch
 ```
 
 Lets create the high Priority Deployment:
-```
+```bash
 kubectl apply -f ./web-server-high-priority.yml 
 ```
 
@@ -112,7 +112,7 @@ You will see a lot of output, but what is happening is the following:
 
 If you now delete the High Priority Deployment, you will see the X Low Priority Pods be created:
 
-```
+```bash
 kubectl delete -f ./web-server-high-priority.yml
 ```
 
@@ -121,20 +121,20 @@ In a later guide, we will see how we restrict which PriorityClasses can be sched
 ## 4. Challenge 1
 The following YAML creates a deployment called `scheduling-challenge-1`. What PriorityClass does it have, any why? How and why is this different to the PriorityClass our web-server had at the start of this guide (see the example output above)?
 
-```
+```bash
 kubectl apply -f ./scheduling-challenge-1.yml
 ```
 
 
 ## 5. Challenge 2
 The following YAML creates a deployment called `scheduling-challenge-2`, but it's Pods are missing when running `kubectl get pods -n web-server`. Why is this, and where can you see the exact error message?
-```
+```bash
 kubectl apply -f ./scheduling-challenge-2.yml
 ```
 
 Hint: Think about the hierarchy of Deployment to Pod resources and what is responsibly for controlling Pods.
 
 ## 5. Clean up resources
-```
+```bash
 kubectl delete -f .
 ```
