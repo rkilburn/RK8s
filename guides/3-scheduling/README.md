@@ -34,26 +34,26 @@ As shown in the previous output, Kubernetes has two PriorityClasses by default. 
 ```
 kubectl get pods --all-namespaces -o custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,PRIORITY:.spec.priorityClassName
 
-#NAME                                      NAMESPACE     PRIORITY
-#calico-kube-controllers-c9784d67d-9mm5g   kube-system   system-cluster-critical
-#calico-node-264dp                         kube-system   system-node-critical
-#calico-node-9rcg4                         kube-system   system-node-critical
-#calico-node-wb4qt                         kube-system   system-node-critical
-#calico-node-p62j4                         kube-system   system-node-critical
-#calico-typha-5f846c74-z8z4q               kube-system   system-cluster-critical
-#coredns-f9fd979d6-f8bsn                   kube-system   system-cluster-critical
-#coredns-f9fd979d6-xrw5f                   kube-system   system-cluster-critical
-#etcd-rk8s-c1                              kube-system   system-node-critical
-#etcd-rk8s-c2                              kube-system   system-node-critical
-#etcd-rk8s-c3                              kube-system   system-node-critical
-#kube-apiserver-rk8s-c1                    kube-system   system-node-critical
-#kube-controller-manager-rk8s-c1           kube-system   system-node-critical
-#kube-proxy-5rfx2                          kube-system   system-node-critical
-#kube-proxy-6lqct                          kube-system   system-node-critical
-#kube-proxy-7xw8b                          kube-system   system-node-critical
-#kube-proxy-9pzk5                          kube-system   system-node-critical
-scheduling-challenge-1-66764df4cc-bfgdx   web-server    default
-#kube-scheduler-rk8s-c1                    kube-system   system-node-critical
+# NAME                                      NAMESPACE     PRIORITY
+# calico-kube-controllers-c9784d67d-9mm5g   kube-system   system-cluster-critical
+# calico-node-264dp                         kube-system   system-node-critical
+# calico-node-9rcg4                         kube-system   system-node-critical
+# calico-node-wb4qt                         kube-system   system-node-critical
+# calico-node-p62j4                         kube-system   system-node-critical
+# calico-typha-5f846c74-z8z4q               kube-system   system-cluster-critical
+# coredns-f9fd979d6-f8bsn                   kube-system   system-cluster-critical
+# coredns-f9fd979d6-xrw5f                   kube-system   system-cluster-critical
+# etcd-rk8s-c1                              kube-system   system-node-critical
+# etcd-rk8s-c2                              kube-system   system-node-critical
+# etcd-rk8s-c3                              kube-system   system-node-critical
+# kube-apiserver-rk8s-c1                    kube-system   system-node-critical
+# kube-controller-manager-rk8s-c1           kube-system   system-node-critical
+# kube-proxy-5rfx2                          kube-system   system-node-critical
+# kube-proxy-6lqct                          kube-system   system-node-critical
+# kube-proxy-7xw8b                          kube-system   system-node-critical
+# kube-proxy-9pzk5                          kube-system   system-node-critical
+# web-server66764df4cc-bfgdx               web-server    default
+# kube-scheduler-rk8s-c1                    kube-system   system-node-critical
 ```
 
 We can see that the following have `system-node-critical`:
