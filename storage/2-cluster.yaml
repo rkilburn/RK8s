@@ -12,7 +12,7 @@
 apiVersion: ceph.rook.io/v1
 kind: CephCluster
 metadata:
-  name: ceph-01
+  name: ceph-a
   namespace: rook-ceph
 spec:
   cephVersion:
@@ -22,7 +22,7 @@ spec:
     # versions running within the cluster. See tags available at https://hub.docker.com/r/ceph/ceph/tags/.
     # If you want to be more precise, you can always use a timestamp tag such ceph/ceph:v15.2.4-20200630
     # This tag might not contain a new Ceph version, just security fixes from the underlying operating system, which will reduce vulnerabilities
-    image: ceph/ceph:v15.2.4
+    image: ceph/ceph:v15.2.5
     # Whether to allow unsupported versions of Ceph. Currently `nautilus` and `octopus` are supported.
     # Future versions such as `pacific` would require this to be set to `true`.
     # Do not set to true in production.
@@ -30,7 +30,7 @@ spec:
   # The path on the host where configuration files will be persisted. Must be specified.
   # Important: if you reinstall the cluster, make sure you delete this directory from each host or else the mons will fail to start on the new cluster.
   # In Minikube, the '/data' directory is configured to persist across reboots. Use "/data/rook" in Minikube environment.
-  dataDirHostPath: /var/lib/rook/ceph-01
+  dataDirHostPath: /var/lib/rook/ceph-a
   # Whether or not upgrade should continue even if a check fails
   # This means Ceph's status could be degraded and we don't recommend upgrading but you might decide otherwise
   # Use at your OWN risk
@@ -130,19 +130,47 @@ spec:
         - key: "node-role.kubernetes.io/master"
           operator: "Equal"
           effect: "NoSchedule"
-      # affinity:
-      #   nodeAffinity:
-      #     requiredDuringSchedulingIgnoredDuringExecution:
-      #       nodeSelectorTerms:
-      #       - matchExpressions:
-      #         - key: node-role.kubernetes.io/master
-      #           operator: Exists
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
 # Monitor deployments may contain an anti-affinity rule for avoiding monitor
 # collocation on the same node. This is a required rule when host network is used
 # or when AllowMultiplePerNode is false. Otherwise this anti-affinity rule is a
 # preferred rule with weight: 50.
-#    osd:
-#    mgr:
+    osd:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: storage
+                operator: ceph-a
+    mgr:
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          effect: "NoSchedule"
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+    cleanup:
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          effect: "NoSchedule"
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node-role.kubernetes.io/master
+              operator: Exists
 #    cleanup:
   annotations:
 #    all:
@@ -161,17 +189,35 @@ spec:
 #    prepareosd:
   resources:
 # The requests and limits set here, allow the mgr pod to use half of one CPU core and 1 gigabyte of memory
-#    mgr:
-#      limits:
-#        cpu: "500m"
-#        memory: "1024Mi"
-#      requests:
-#        cpu: "500m"
-#        memory: "1024Mi"
+    # mgr:
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "1024Mi"
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "128Mi"
 # The above example requests/limits can also be added to the mon and osd components
-#    mon:
-#    osd:
-#    prepareosd:
+    # mon:
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "1024Mi"
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "128Mi"
+    # osd:
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "1024Mi"
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "128Mi"
+    # prepareosd:
+    #   limits:
+    #     cpu: "500m"
+    #     memory: "1024Mi"
+    #   requests:
+    #     cpu: "100m"
+    #     memory: "128Mi"
 #    crashcollector:
 #    cleanup:
   # The option to automatically remove OSDs that are out and are safe to destroy.
@@ -183,7 +229,7 @@ spec:
 #    mgr: rook-ceph-mgr-priority-class
   storage: # cluster level storage configuration and selection
     useAllNodes: false
-    useAllDevices: true
+    useAllDevices: false
     #deviceFilter:
     config:
       # metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
@@ -194,11 +240,15 @@ spec:
 # Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
 # nodes below will be used as storage resources.  Each node's 'name' field should match their 'kubernetes.io/hostname' label.
     nodes:
-      - name: rk-k8s
-        devices: # specific devices to use for storage can be specified for each node
+      - name: rk8s-n1
+        devices:
         - name: "sdb"
-        - name: "sdc"
-        - name: "sdd"
+      - name: rk8s-n2
+        devices:
+        - name: "sdb"
+      - name: rk8s-n3
+        devices:
+        - name: "sdb"
 #      - name: "nvme01" # multiple osds can be created on high performance devices
 #        config:
 #          osdsPerDevice: "5"

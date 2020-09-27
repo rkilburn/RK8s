@@ -1,6 +1,14 @@
     
 # Initial Cluster Setup
 
+## 0. Provision Infrastructure
+
+Create the following VMs:
+- 3x Controller Nodes with 2 Cores, 4GB RAM and 32GB OS SSD
+- 3x Worker Nodes with 2 Cores, 4GB RAM, 32GB OS SSD and 16GB Data SSD - do not format/mount this disk
+
+You also will need a Load Balancer that balances traffic across Port 6443 on your Controller Nodes. You can use a cloud provider, another dedicated VM or a VIP with HAProxy and KeepaliveD
+
 ## 1. Install Docker
 
 ```
@@ -114,6 +122,12 @@ kubectl apply -f networking/calico.yaml
 Run the following command to check all nodes are Ready in the cluster
 ```
 kubectl get nodes
+```
+
+## 10. Label your nodes
+Labelling your nodes allows you to spread Pods out intelligently and target Pods to types of nodes. Edit the `./label.sh` file with your node names as per the previous commands and run the following command. For now, don't worry too much about the storage label, that will become clear later on!
+```
+./label.sh
 ```
 
 ## Create Awesome Things!

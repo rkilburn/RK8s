@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-challenge-3
+  namespace: web-server
+  labels:
+    app: storage-challenge-3
+spec:
+  storageClassName: ceph-block-ssd
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-challenge-3
+  namespace: web-server
+  labels:
+    app: storage-challenge-3
+    tier: nginx
+spec:
+  selector:
+    matchLabels:
+      app: storage-challenge-3
+      tier: nginx
+  strategy:
+    type: Recreate
+  replicas: 3
+  template:
+    
+    metadata:
+      labels:
+        app: storage-challenge-3
+        tier: nginx
+    spec:
+      containers:
+      - image: nginx:1.19.2
+        name: nginx
+        volumeMounts:
+        - name: nginx-persistent-storage
+          mountPath: /var/lib/nginx
+      volumes:
+      - name: nginx-persistent-storage
+        persistentVolumeClaim:
+          claimName: storage-challenge-3
