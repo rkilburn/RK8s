@@ -52,7 +52,7 @@ kubectl get pods --all-namespaces -o custom-columns=NAME:.metadata.name,NAMESPAC
 # kube-proxy-6lqct                          kube-system   system-node-critical
 # kube-proxy-7xw8b                          kube-system   system-node-critical
 # kube-proxy-9pzk5                          kube-system   system-node-critical
-# web-server66764df4cc-bfgdx                web-server    default
+# web-server66764df4cc-bfgdx                web-server    
 # kube-scheduler-rk8s-c1                    kube-system   system-node-critical
 ```
 
