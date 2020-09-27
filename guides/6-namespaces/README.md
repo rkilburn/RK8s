@@ -327,3 +327,6 @@ Well done for making it through that! Time to clean up:
 ```bash
 kubectl delete -f .
 ```
+
+## Scripts
+In the `scripts` folder, there is a bash script to template Namespaces based on the contents of `namespaces/namespaces.txt`
