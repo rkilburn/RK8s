@@ -86,7 +86,7 @@ Apply the low priority web server resource file:
 kubectl apply -f ./web-server-low-priority.yml
 ```
 
-Scale up the pods to fill up your cluster. Each Pod is requesting 0.5CPU Cores and 512Mi - nginx will not use all of this so it will kill your cluster - even if it did, the resource limits and scheduler would prevent this. Keeping scaling the deployment so that you have no Pending Pods. 
+Scale up the pods to fill up your cluster. Each Pod is requesting 0.2 CPU Cores and 256Mi - nginx will not use all of this so it will kill your cluster - even if it did, the resource limits and scheduler would prevent this. Keeping scaling the deployment so that you have no Pending Pods. 
 
 ```
 kubectl scale -f ./web-server-low-priority.yml --replicas 25
