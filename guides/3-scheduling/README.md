@@ -17,7 +17,7 @@ In Kubernetes, we can achieve this with PriorityClasses. We assign each Pod a Pr
 
 If you do not have your web-server deployment from the previous guide, recreate it with the following command:
 ```
-kubectl apply -f web-server.yml
+kubectl apply -f ./web-server.yml
 ```
 
 ## 1. See current PriorityClasses
@@ -74,7 +74,7 @@ Last up, we have our web-server pods that do not have a priority class.
 ## 2. Create PriorityClasses
 Apply the resource file with our desired PriorityClasses and check their values:
 ```
-kubectl apply -f <root>/scheduling
+kubectl apply -f scheduling
 kubectl get priorityclass
 ```
 
