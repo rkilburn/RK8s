@@ -143,19 +143,25 @@ spec:
             mountPath: /data
           - name: tmp
             mountPath: /tmp
+          - name: certs
+            mountPath: /certs
+          - name: config
+            mountPath: /config
         args:
           # - "--global.checknewversion"
           # - "--global.sendanonymoususage"
           - "--entryPoints.traefik.address=:9000/tcp"
           - "--entryPoints.web.address=:8000/tcp"
           - "--entryPoints.websecure.address=:8443/tcp"
+          - "--entrypoints.websecure.http.tls"
           - "--api.dashboard=true"
           - "--ping=true"
           - "--providers.kubernetescrd"
           - "--providers.kubernetesingress"
           - "--tracing.elastic=true"
+          - "--providers.file.directory=/config/"
           # - "--tracing.elastic.serverurl=http://apm-server.default.svc.cluster.local:8200"
-          - "--tracing.elastic.serverurl=http://10.100.228.219:8200"
+          # - "--tracing.elastic.serverurl=http://10.100.228.219:8200"
           - "--accesslog=true"
           - "--log.level=DEBUG"
       volumes:
@@ -163,6 +169,12 @@ spec:
           emptyDir: {}
         - name: tmp
           emptyDir: {}
+        - name: certs
+          secret:
+            secretName: traefik-certs
+        - name: config
+          configMap:
+            name: traefik-certs-config
       securityContext:
         fsGroup: 65532
       priorityClassName: "core-cluster-networking"
@@ -230,3 +242,16 @@ spec:
     services:
     - name: api@internal
       kind: TraefikService
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: pki
+spec:
+  passTLSClientCert:
+    pem: true
+    info:
+      sans: true
+      subject:
+        commonName: true

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fwd-auth-pki
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fwd-auth-pki
+  template:
+    metadata:
+      labels:
+        app: fwd-auth-pki
+    spec:
+      containers:
+      - name: fwd-auth-pki
+        image: ghcr.io/rkilburn/traefik-forwardauth-certs:1.0.0
+        imagePullPolicy: Always
+        env:
+          - name: REQUEST_HEADER
+            value: X-Forwarded-Tls-Client-Cert
+          - name: RESPONSE_HEADER
+            value: x-remote-user
+        volumeMounts:
+        - name: certs
+          mountPath: /certs/
+      volumes:
+        - name: certs
+          secret:
+            secretName: traefik-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fwd-auth-pki
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    targetPort: 8443
+    port: 8443
+  selector:
+    app: fwd-auth-pki
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: fwd-auth-pki
+spec:
+  forwardAuth:
+    address: https://fwd-auth-pki.kube-system.svc.cluster.local:8443/v1/certificate/cn
+    authResponseHeaders:
+      - X-Remote-User
+    tls:
+      insecureSkipVerify: true
