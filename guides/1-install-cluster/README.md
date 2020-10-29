@@ -9,6 +9,9 @@ Create the following VMs:
 
 You also will need a Load Balancer that balances traffic across Port 6443 on your Controller Nodes. You can use a cloud provider, another dedicated VM or a VIP with HAProxy and KeepaliveD
 
+If you are using AWS, or a cloud provider that allows User Data, use the user-data.sh script and skip to step 4. 
+
+
 ## 1. Install Docker
 
 ```
@@ -84,6 +87,7 @@ If you are running a Controller node with less than 2 CPU cores, add `--ignore-p
 ```
 kubeadm init \
   --pod-network-cidr=192.168.0.0/16 \
+  --apiserver-bind-port=6443
   --control-plane-endpoint=k8s.rkilburn.com:6443 \
   --image-repository k8s.gcr.io \
   --upload-certs
