@@ -1,0 +1,144 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-proxy-config
+data:
+  default.conf: |
+    server {
+      gzip on;
+
+      listen 443 ssl;
+      server_name kubernetes-api;
+
+      ssl_certificate /certs/front-proxy-client.crt;
+      ssl_certificate_key /certs/front-proxy-client.key;
+
+      ignore_invalid_headers off;
+      client_max_body_size 0;
+
+      proxy_buffering off;
+      proxy_request_buffering off;
+
+      location / {
+        proxy_set_header Host "kubernetes.default";
+        proxy_connect_timeout 300;
+        proxy_ssl_certificate_key /certs/front-proxy-client.key;
+        proxy_ssl_certificate /certs/front-proxy-client.crt;
+        chunked_transfer_encoding off;
+        proxy_pass https://kubernetes.default ;
+      }
+    }
+
+
+---
+# Source: traefik/templates/deployment.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: api-proxy
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: api-proxy
+  template:
+    metadata:
+      labels:
+        app: api-proxy
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - image: nginx:1.9
+        imagePullPolicy: IfNotPresent
+        name: nginx
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: 128Mi
+          limits:
+            cpu: "1"
+            memory: 512Mi
+        ports:
+        - name: api
+          containerPort: 443
+          protocol: "TCP"
+        volumeMounts:
+          - name: config
+            mountPath: /etc/nginx/conf.d/
+          - name: certs
+            mountPath: /certs/front-proxy-client.crt
+            subPath: front-proxy-client.crt
+          - name: certs
+            mountPath: /certs/front-proxy-client.key
+            subPath: front-proxy-client.key
+      volumes:
+        - name: config
+          configMap:
+            name: api-proxy-config
+        - name: certs
+          hostPath:
+                path: /etc/kubernetes/pki/
+      priorityClassName: "core-cluster-networking"
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Equal"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-proxy
+  namespace: kube-system
+spec:
+  selector:
+    app: api-proxy
+  ports:
+  - name: api
+    port: 443
+    targetPort: 443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-ingress-to-api-proxy
+spec:
+  podSelector:
+    matchLabels:
+      app: api-proxy
+  ingress:
+      - from:
+          - podSelector:
+              matchLabels:
+                app.kubernetes.io/name: traefik
+  policyTypes:
+  - Ingress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-proxy
+  namespace: kube-system
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-pki@kubernetescrd,kube-system-fwd-auth-pki@kubernetescrd
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-proxy
+            port:
+              name: api

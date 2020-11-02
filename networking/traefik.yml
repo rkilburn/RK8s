@@ -164,6 +164,7 @@ spec:
           # - "--tracing.elastic.serverurl=http://10.100.228.219:8200"
           - "--accesslog=true"
           - "--log.level=DEBUG"
+          - "--serverstransport.insecureskipverify=true"
       volumes:
         - name: data
           emptyDir: {}

@@ -29,7 +29,7 @@ Traefik uses Custom Resource Definitions (CRDs) to add additional types of Resou
 kubectl apply -f networking/traefik-crds.yml
 ```
 
-## 2. Create Certificate Secretss for Traefik
+## 2. Create Certificate Secrets for Traefik
 In order to make our cluster secure, we are going to create a secure Entrypoint for Traefik (an Entrypoint is the term that Traefik uses for a Port). By default, an Entrypoint that has TLS enabled will generate its own self-signed certificate and therefore we should specify our own certificates in production. For this set of guides, a Certificate Authority, a web certificate and two client ceritificates have been generated for you. These provided certificates should never be used in production or clusters exposed to the internet.
 
 There is a standard way of formatting TLS certificate Secrets in Kubernetes. These can be generated using the following command:
