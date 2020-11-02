@@ -243,15 +243,3 @@ spec:
     - name: api@internal
       kind: TraefikService
 
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: pki
-spec:
-  passTLSClientCert:
-    pem: true
-    info:
-      sans: true
-      subject:
-        commonName: true

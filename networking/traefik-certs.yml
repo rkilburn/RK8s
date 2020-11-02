@@ -15,7 +15,7 @@ data:
         [tls.options.default.clientAuth]
           # in PEM format. each file can contain multiple CAs.
           caFiles = ["/certs/ca.crt"]
-          clientAuthType = "RequireAndVerifyClientCert"
+          clientAuthType = "VerifyClientCertIfGiven"
 
 ---
 apiVersion: v1
