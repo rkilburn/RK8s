@@ -82,3 +82,5 @@ spec:
     - namespaceSelector:  # All traffic from namespaces with the following labels
         matchLabels:
           type: system
+  policyTypes:
+  - Ingress               # Deny all Ingress traffic that does not match the above rules.
