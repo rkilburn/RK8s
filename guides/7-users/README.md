@@ -2,7 +2,7 @@
 
 For now, we have been using the cluster-admin user using the certificates created by kubeadm. If we were to give this out to our users, they would have full access to every resource in the cluster - not great for security! 
 
-There actually is no such thing as a User in Kubernetes: you are not able to create a resource with kind: User. However, there is a pseudo-user mechanism and thats provided via Roles. All access to the API is controlled using Role Based Access Control (RBAC). The closet we get to `Users` is in the `RoleBinding` or `ClusterRoleBinding`.
+There actually is no such thing as a User in Kubernetes: you are not able to create a resource with kind: User. However, there is a pseudo-user mechanism and thats provided via Roles. All access to the API is controlled using Role Based Access Control (RBAC). The closest we get to `Users` is in the `RoleBinding` or `ClusterRoleBinding`.
 
 ```yaml
 ---
@@ -29,7 +29,7 @@ Well you've got me there, but you will never create something with `kind: User`.
 Kubernetes uses client certificates, bearer tokens, an authenticating proxy, or HTTP basic auth to authenticate API requests through authentication plugins
 `
 
-We can use a plugin to determine which `User` is making the request, and that is where our `User` name comes from. Evaluating these options, we already have an authenticating proxy using certificates and Traefik. Therefore, we will use this to work out which user is making requests! This authentication plugin is configured on the API server and is enabled by default. Let's take a look to see how it's configured, then use it to deploy some Pods!
+We can use a plugin to determine which `User` is making the request, and that is where our `User`'s name comes from. Evaluating these options, we already have an authenticating proxy using certificates and Traefik. Therefore, we will use this to work out which user is making requests! This authentication plugin is configured on the API server and is enabled by default. Let's take a look to see how it's configured, then use it to deploy some Pods!
 
 ## 1. Look at Kube-APIServer Config
 SSH onto one of your control plane nodes and edit `/etc/kubernetes/manifiests/kube-apiserver.yaml`
@@ -53,14 +53,14 @@ spec:
     - --requestheader-username-headers=X-Remote-User
 ```
 
-The --request-header flags tell the API server which headers to look into in order to identify a user. The front-proxy-ca.crt determines which client certificates must make the request kubeadm has already created client certs for us that are signed the the CA called front-proxy-client.crt
+The --request-header flags tell the API server which headers to look into in order to identify a user. The front-proxy-ca.crt determines which client certificates can make requests using this method of authentication. kubeadm has already created client certs for us that are signed the the CA. These are called front-proxy-client.crt and front-proxy-client.key. The benefit to using these certificates is when you upgrade the cluster using kubeadm, it will automatically renew them.
 
 ```bash
 openssl x509 -in /etc/kubernetes/pki/front-proxy-client.crt -text | grep Issuer
 # Issuer: CN = front-proxy-ca
 ```
 
-But we need to make sure that anyone else can't make requests to the API Proxy, otherwise any request with a x-remote-user header would be forwarded. To achieve this, we use a NetworkPolicy to say that Traefik, and only Traefik can connect to the API Proxy.
+But we need to make sure that anyone else can't make requests to the API Proxy, otherwise any request with a x-remote-user header would be trusted. To achieve this, we use a NetworkPolicy to say that Traefik, and only Traefik, can connect to the API Proxy.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -80,7 +80,7 @@ spec:
   - Ingress
 ```
 
-And finally, just in case someone tries to set headers before the request hits Traefik, lets remove the X-Remote-User and X-Remote-Group from the request before we forward to the Forward Authentication server. Setting the values to "" removes the header in Traefik Headers middlware.
+And finally, just in case someone tries to set headers before the request hits Traefik, lets remove the X-Remote-User and X-Remote-Group from the request. Setting the values to "" removes the header in Traefik Headers middleware. We then add this to list of middlewares that Traefik applies to each request.
 
 ```yaml
 apiVersion: traefik.containo.us/v1alpha1
@@ -95,10 +95,10 @@ spec:
 ```
 
 ## 2. Deploy the API Proxy DaemonSet
-We run the proxy on all control plane nodes as there will always be the front-proxy-client certificate and there will always be at least three replicas. We can also use podTopology in the service to prioritise that network traffic is routed to Pods on the same node. 
+We run the proxy on all control plane nodes as there will always be the front-proxy-client certificate on those hosts and there will always be at least three replicas.
 
 ```bash
-kubectl apply -f /api-access/api-proxy
+kubectl apply -f /api-access/api-proxy.yml
 ```
 
 ## 3. Configure the user Roles
@@ -150,7 +150,7 @@ kubectl config use-context alice
 kubectl get pods -n kube-system
 ```
 
-This is a better way of giving Cluster Administrators full access to the cluster, since it is much more difficult to cycle the cluster-admin credentials.
+This is a better way of giving Cluster Administrators full access to the cluster, since it is much more difficult to cycle the cluster-admin credentials should you need to remove their access.
 
 ## Challenge 1
 How would you remove Alices Cluster Administrator permissions? Check this has been applied using the following command which should fail:
@@ -161,13 +161,13 @@ kubectl get pods -n kube-system
 ```
 
 ## Challenge 2
-Apply the `alice-web-server.yml` file using the following command. Why does it fail and how do you resolve the issue?
+Ensuring you have completed Challenge 1, apply the `alice-web-server.yml` file using the following command. Why does it fail and how do you resolve the issue?
 ```bash
 kubectl apply -f web-server.yml -n alice
 ```
 
 ## Challenge 3
-As Alice, can you get a literal `yes` or `no` answer as to whether you can create Pods in the namespace `bob`. You should not try to actually create a Pod in the namespace. Explore the `kubectl --help` and see if you can work out if you can get the following output:
+Ensuring you have completed Challenge 1, as Alice, can you get a literal `yes` or `no` answer as to whether you can create Pods in the namespace `bob`. You should not try to actually create a Pod in the namespace. Explore the `kubectl --help` and see if you can work out if you can get the following output:
 
 ```bash
 # Create Pods in the namespace `alice`
