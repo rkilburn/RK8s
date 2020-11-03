@@ -74,7 +74,7 @@ kubectl apply -f storage-challenge-1.yml
 Apply the following YAML which creates resources called `storage-challenge-3`. Why are none of the Pods created and how can you make all three Pods run at the same time?
 
 ## 8. Tidy up time!
-You made it! Hopefully your CEPH Cluster provisioned okay and you were able to try this out for yourself. A small amount of luck is generally needed, however once provisioned, CEPH is infinitely scalable.
+You made it! Hopefully your CEPH Cluster provisioned okay and you were able to try this out for yourself. A small amount of luck is generally needed, however once provisioned, CEPH is *infinitely* scalable.
 ```bash
 kubectl delete -f .
 ```
