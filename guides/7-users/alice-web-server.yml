@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alice-web-server
+  namespace: bob
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: alice-web-server
+  template:
+    metadata:
+      labels:
+        name: alice-web-server
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.19.2
+        

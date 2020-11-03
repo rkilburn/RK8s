@@ -2,13 +2,34 @@
 
 For now, we have been using the cluster-admin user using the certificates created by kubeadm. If we were to give this out to our users, they would have full access to every resource in the cluster - not great for security! 
 
-There actually is no such thing as a User in Kubernetes: you are not able to create a resource with kind: User. However, there is a pseudo-user mechanism and thats provided via Roles. From the Kubernetes website:
+There actually is no such thing as a User in Kubernetes: you are not able to create a resource with kind: User. However, there is a pseudo-user mechanism and thats provided via Roles. All access to the API is controlled using Role Based Access Control (RBAC). The closet we get to `Users` is in the `RoleBinding` or `ClusterRoleBinding`.
 
+```yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: namespace-resources-ryan
+  namespace: ryan
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: ryan
 ```
+
+"But hang on, you just said there is no such thing as Users but there is literally `kind: User` in that YAML!".
+
+Well you've got me there, but you will never create something with `kind: User`. Instead the user name will come from an authentication plugin. From the Kubernetes website:
+
+`
 Kubernetes uses client certificates, bearer tokens, an authenticating proxy, or HTTP basic auth to authenticate API requests through authentication plugins
-```
+`
 
-Evaluating these options, we already have an authenticating proxy using certificates and Traefik. Therefore, we will use this to work out what user is making requests! This is configured at the API Server level
+We can use a plugin to determine which `User` is making the request, and that is where our `User` name comes from. Evaluating these options, we already have an authenticating proxy using certificates and Traefik. Therefore, we will use this to work out which user is making requests! This authentication plugin is configured on the API server and is enabled by default. Let's take a look to see how it's configured, then use it to deploy some Pods!
 
 ## 1. Look at Kube-APIServer Config
 SSH onto one of your control plane nodes and edit `/etc/kubernetes/manifiests/kube-apiserver.yaml`
@@ -131,3 +152,29 @@ kubectl get pods -n kube-system
 
 This is a better way of giving Cluster Administrators full access to the cluster, since it is much more difficult to cycle the cluster-admin credentials.
 
+## Challenge 1
+How would you remove Alices Cluster Administrator permissions? Check this has been applied using the following command which should fail:
+
+```bash
+kubectl get pods -n kube-system
+# Error from server (Forbidden): pods is forbidden: User "alice" cannot list resource "pods" in API group "" in the namespace "kube-system"
+```
+
+## Challenge 2
+Apply the `alice-web-server.yml` file using the following command. Why does it fail and how do you resolve the issue?
+```bash
+kubectl apply -f web-server.yml -n alice
+```
+
+## Challenge 3
+As Alice, can you get a literal `yes` or `no` answer as to whether you can create Pods in the namespace `bob`. You should not try to actually create a Pod in the namespace. Explore the `kubectl --help` and see if you can work out if you can get the following output:
+
+```bash
+# Create Pods in the namespace `alice`
+kubectl ...
+# yes
+
+# Create Pods in the namespace `bob`
+kubectl ...
+# no
+```
