@@ -124,13 +124,34 @@ spec:
   - Ingress
 
 ---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: remove-user-headers
+spec:
+  headers:
+    customRequestHeaders:
+      X-Remote-User: ""
+      X-Remote-Group: ""
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: remove-api-prefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-proxy
   namespace: kube-system
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: kube-system-pki@kubernetescrd,kube-system-fwd-auth-pki@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: kube-system-remove-user-headers@kubernetescrd,kube-system-remove-api-prefix@kubernetescrd,kube-system-pki@kubernetescrd,kube-system-fwd-auth-pki@kubernetescrd
 spec:
   rules:
   - http:
