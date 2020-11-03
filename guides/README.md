@@ -10,7 +10,7 @@ Create your own Kubernetes Cluster from scratch and configure networking, storag
 | Deploy | Run an application on your new cluster | 30 mins |
 | Scheduling | Add PriorityClasses and watch the scheduler kick out low priority Pods | 45 mins |
 | Networking | Configure Traefik as an Ingress Provider and take a deeper dive into Calico | 45 mins | 
-| Storage | Setup a CEPH Cluster in 5 commands and dynamically provision PeristentVolumes within your cluster | 45 minutes |
-| Namespaces | Create Namespaces and Security Policies to enable multitenancy | 30 minutes |
-| Users | Implement Role Based Access Control and security policies | 45 minutes | 
-| Automation | Use Flux to manage your entire cluster state | 15 minutes |
+| Storage | Setup a CEPH Cluster in 5 commands and dynamically provision PeristentVolumes within your cluster | 45 mins |
+| Namespaces | Create Namespaces and Security Policies to enable multitenancy | 30 mins |
+| Users | Implement Role Based Access Control and security policies | 45 mins | 
+| Automation | Use Flux to manage your entire cluster state | 30 mins |
