@@ -87,7 +87,7 @@ If you are running a Controller node with less than 2 CPU cores, add `--ignore-p
 ```
 kubeadm init \
   --pod-network-cidr=192.168.0.0/16 \
-  --apiserver-bind-port=6443
+  --apiserver-bind-port=6443 \
   --control-plane-endpoint=k8s.rkilburn.com:6443 \
   --image-repository k8s.gcr.io \
   --upload-certs

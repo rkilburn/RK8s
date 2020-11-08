@@ -26,7 +26,7 @@ kubectl get pods
 ```
 Or, just get the pods with the label name set to web-server
 ```
-kubectl get pods -l name=webserver
+kubectl get pods -l name=web-server
 ```
 
 We can go one step futher and describe a pod to see what image it is running, and any events or errors it experienced. Run the following command, using one of the Pod's name from the previous commands
